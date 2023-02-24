@@ -116,14 +116,6 @@ impl<T> Loc<T> {
         Self { context, tree }
     }
 
-    fn set(&self, data: T) -> Self {
-        let tree = match &self.tree {
-            Tree(None) => Tree::new(Rc::new(data), Tree::default(), Tree::default()),
-            Tree(Some(tree)) => Tree::new(Rc::new(data), tree.left.clone(), tree.right.clone()),
-        };
-        Self::new(self.context.clone(), tree)
-    }
-
     fn up(&self) -> Option<Self> {
         match &self.context {
             Context(None) => None,
@@ -155,6 +147,18 @@ impl<T> Loc<T> {
             Self::new(context, tree)
         })
     }
+
+    fn set(&self, data: T) -> Self {
+        let tree = match &self.tree {
+            Tree(None) => Tree::new(Rc::new(data), Tree::default(), Tree::default()),
+            Tree(Some(tree)) => Tree::new(Rc::new(data), tree.left.clone(), tree.right.clone()),
+        };
+        Self::new(self.context.clone(), tree)
+    }
+
+    fn delete(&self) -> Self {
+        Self::new(self.context.clone(), Tree::default())
+    }
 }
 
 fn main() {
@@ -181,6 +185,9 @@ fn main() {
             }
             &["u" | "up"] => {
                 tree = tree.up().unwrap_or(tree);
+            }
+            &["d" | "del" | "delete"] => {
+                tree = tree.delete();
             }
             _ => println!("Invalid command: `{s}`"),
         }
